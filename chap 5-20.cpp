@@ -18,6 +18,7 @@ int getUserGuess(int minValue, int maxValue);
 void displayHint(int userNum, int randomNum);
 void displayResults(int randomNum, int userNum);
 
+//Main 
 int main()
 {
 
@@ -62,6 +63,8 @@ int getUserGuess(int minValue, int maxValue) {
         }
     }
 }
+
+//Hints 
 void displayHint(int userNum, int randomNum) {
     if (userNum > randomNum) {
         cout << "Too high try again" << endl;
