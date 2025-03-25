@@ -9,76 +9,152 @@
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
-
+#include <fstream>
+#include <vector>
 using namespace std;
 
-//Prototype
-int generateRandomNumber(int minValue, int maxValue);
-int getUserGuess(int minValue, int maxValue);
-void displayHint(int userNum, int randomNum);
-void displayResults(int randomNum, int userNum);
+// Prototypes 
+int generateRandomNumber(int min, int max);
+int getUserGuess(int min, int max);
+void playGame(int minVal, int maxVal, string playerName);  // Added semicolon here
+void showSessions();
+void clearSessions();
+void showMenu();
 
-//Main 
-int main()
-{
+// main
+#include <iostream>
+#include <cstdlib>
+#include <ctime>
+#include <fstream>
+#include <string>
+#include <limits>  
+using namespace std;
 
-    const int minValue = 1,
-        maxValue = 10;
+// Prototypes 
+int generateRandomNumber(int min, int max);
+int getUserGuess(int min, int max);
+void playGame(int minVal, int maxVal, string playerName);
+void showSessions();
+void clearSessions();
+void showMenu();
 
-    // Generate a random number
-    int randomNum = generateRandomNumber(minValue, maxValue);
+// main
+int main() {
+    const int min = 1, max = 10;
 
-    // Get the user's guess
-    int userNum = getUserGuess(minValue, maxValue);
+    while (true) {
+        showMenu();
+        int choice;
+        cin >> choice;
 
-    // Check the guess and provide hints
-    while (userNum != randomNum) {
-        displayHint(userNum, randomNum);
-        userNum = getUserGuess(minValue, maxValue);
+        
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+        if (choice == 4) {
+            cout << "Goodbye.\n";
+            break;
+        }
+
+        switch (choice) {
+        case 1:
+            showSessions();
+            break;
+
+        case 2: {
+            string name;
+            cout << "Enter your name: ";
+            getline(cin, name);  
+            playGame(min, max, name);
+            break;
+        }
+
+        case 3:
+            clearSessions();
+            break;
+
+        default:
+            cout << "Invalid choice.\n";
+        }
+
+        cout << "Press Enter to continue...";
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
     }
 
-    // Display the final results
-    displayResults(randomNum, userNum);
     return 0;
 }
 
-// Generates a random number between minValue and maxValue
-int generateRandomNumber(int minValue, int maxValue) {
-    unsigned seed = time(0);
-    srand(seed);
-    return (rand() % (maxValue - minValue + 1)) + minValue;
+// Game functions
+int generateRandomNumber(int min, int max) {
+    static bool seeded = false;
+    if (!seeded) {
+        srand(time(0));
+        seeded = true;
+    }
+    return min + rand() % (max - min + 1);
 }
 
-// Prompts the user to enter a guess and ensures it's within the valid range
-int getUserGuess(int minValue, int maxValue) {
-    int userNum;
+int getUserGuess(int min, int max) {
+    int guess;
     while (true) {
-        cout << "Guess a number between 1 and 10:";
-        cin >> userNum;
-        if (userNum >= minValue && userNum <= maxValue) {
-            return userNum;
-        }
-        else {
-            cout << "Invalid input. Please try again." << endl;
-        }
+        cout << "Guess (" << min << "-" << max << "): ";
+        cin >> guess;
+        if (guess >= min && guess <= max) return guess;
+        cout << "Invalid. Try again.\n";
     }
 }
 
-//Hints 
-void displayHint(int userNum, int randomNum) {
-    if (userNum > randomNum) {
-        cout << "Too high try again" << endl;
-    }
-    else if (userNum < randomNum) {
-        cout << "Too low try again" << endl;
-    }
-    else {
-        cout << "Correct" << endl;
+void playGame(int minVal, int maxVal, string playerName) {
+    int randomNum = generateRandomNumber(minVal, maxVal);
+    int attempts = 0;
+    int guess;
+
+    cout << "New Game \n";
+    do {
+        guess = getUserGuess(minVal, maxVal);
+        attempts++;
+
+        if (guess > randomNum) cout << "Too high.\n";
+        else if (guess < randomNum) cout << "Too low.\n";
+    } while (guess != randomNum);
+
+    cout << "Correct. Attempts: " << attempts << "\n";
+
+    // Save session
+    ofstream file("sessions.txt", ios::app);
+    if (file) {
+        file << playerName << " " << attempts << " " << randomNum << "\n";
     }
 }
 
-// Displays the final results
-void displayResults(int randomNum, int userNum) {
-    cout << "Random number = " << randomNum << endl;
-    cout << "Your guess = " << userNum << endl;
+// Session functions
+void showSessions() {
+    ifstream file("sessions.txt");
+    cout << "Past Sessions \n";
+
+    if (!file) {
+        cout << "No sessions found.\n";
+        return;
+    }
+
+    string name;
+    int attempts, number;
+    while (file >> name >> attempts >> number) {
+        cout << name << ": Guessed " << number
+            << " in " << attempts << " attempts\n";
+    }
+}
+
+void clearSessions() {
+    ofstream file("sessions.txt", ios::trunc);
+    cout << "All sessions cleared!\n";
+}
+
+// Menu function
+void showMenu() {
+    cout << "Math Game\n"
+        << "1. View Past Sessions\n"
+        << "2. Play New Game\n"
+        << "3. Clear Sessions\n"
+        << "4. Exit\n"
+        << "Choose (1-4): ";
 }
