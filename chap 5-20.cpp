@@ -16,7 +16,7 @@ using namespace std;
 int generateRandomNumber(int minValue, int maxValue);
 int getUserGuess(int minValue, int maxValue);
 void displayHint(int userNum, int randomNum);
-void displayResults(int randomNum, int userNum);
+void displayResults(int randomNum, int userNum, int numGuesses);
 
 //Main 
 int main()
@@ -30,15 +30,18 @@ int main()
 
     // Get the user's guess
     int userNum = getUserGuess(minValue, maxValue);
+    int numGuesses = 1;
 
     // Check the guess and provide hints
     while (userNum != randomNum) {
         displayHint(userNum, randomNum);
         userNum = getUserGuess(minValue, maxValue);
+        numGuesses++;
     }
 
     // Display the final results
-    displayResults(randomNum, userNum);
+    displayResults( randomNum, userNum, numGuesses);
+
     return 0;
 }
 
@@ -52,6 +55,7 @@ int generateRandomNumber(int minValue, int maxValue) {
 // Prompts the user to enter a guess and ensures it's within the valid range
 int getUserGuess(int minValue, int maxValue) {
     int userNum;
+    int numGuesses;
     while (true) {
         cout << "Guess a number between 1 and 10:";
         cin >> userNum;
@@ -78,7 +82,8 @@ void displayHint(int userNum, int randomNum) {
 }
 
 // Displays the final results
-void displayResults(int randomNum, int userNum) {
+void displayResults(int randomNum, int userNum, int numGuesses) {
     cout << "Random number = " << randomNum << endl;
     cout << "Your guess = " << userNum << endl;
+    cout << "Total Guesses=" << numGuesses << endl;
 }
